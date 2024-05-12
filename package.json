@@ -1,0 +1,11 @@
+{
+  "name": "chaiandbackend",
+  "version": "1.0.0",
+  "description": "a backend chai and code practice",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ajay kumar Gupta",
+  "license": "ISC"
+}
