@@ -6,5 +6,4 @@ class ApiResponse {
     this.success = statusCode < 100;
   }
 
-  
 }
