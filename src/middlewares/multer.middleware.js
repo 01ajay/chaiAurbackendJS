@@ -6,7 +6,7 @@ const storage = multer.diskStorage({
 
     destination: function (req, file, cb) {
 
-        cb(null, './public/temp')
+        cb(null,'./public/temp')
 
     },
    
@@ -20,5 +20,5 @@ const storage = multer.diskStorage({
     }
   })
   
-  export const upload = multer({ storage })
-//   export const upload = multer({ storage: storage })
+  export const upload = multer({ storage })//es6 syntax
+//   export const upload = multer({ storage: storage })//old syntax

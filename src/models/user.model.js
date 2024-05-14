@@ -29,8 +29,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       reqired: true,
     },
-    coverImage: {
+    coverimage: {
       type: String,
+    
+    
     },
     watchHistroy: {
       type: mongoose.Schema.Types.ObjectId,
