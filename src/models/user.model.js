@@ -46,6 +46,7 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
 // dont use "array function" use "fuction" key word it
 //take time to process it so make it async
 //encrypting the password before pusing into the db

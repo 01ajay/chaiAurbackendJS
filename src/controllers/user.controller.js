@@ -2,7 +2,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import User from "../models/user.model.js";
 import { uploadCloudinary } from "../utils/cloudinary.js";
-import {ApiResponse} from "../utils/ApiResponse.js"
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 const registerUser = asyncHandler(async (req, res) => {
   //get user details frontend
@@ -50,25 +50,26 @@ const registerUser = asyncHandler(async (req, res) => {
 
   const user = await User.create({
     fullname,
-    avatar:avatar.url,
-    coverImage:coverImage?.url || "", //since avatar is checked as it was 
-                                    //required but cover Image is optional 
-                                // check /*coverImage?.url || ""*/ is important
+    avatar: avatar.url,
+    coverImage: coverImage?.url || "", //since avatar is checked as it was
+    //required but cover Image is optional
+    // check /*coverImage?.url || ""*/ is important
     email,
     password,
-    username:username.toLowerCase()
-  })
-//check user details is creadted by making db call its foolproof
-    const userCreated = await User.findById(user._id).select("-password -refreshToken");
+    username: username.toLowerCase(),
+  });
+  //check user details is creadted by making db call its foolproof
+  const userCreated = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
 
-    if(!userCreated)
-        {
-            throw new ApiError(500,"Somthing went wrong while registering the user")
-        }
+  if (!userCreated) {
+    throw new ApiError(500, "Somthing went wrong while registering the user");
+  }
 
-        return res.status(201).json(new ApiResponse(200,userCreated,"User Register Successfully."))
-
-
+  return res
+    .status(201)
+    .json(new ApiResponse(200, userCreated, "User Register Successfully."));
 });
 
 export { registerUser };

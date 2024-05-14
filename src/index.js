@@ -1,38 +1,19 @@
-
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 import connectDB from "./db/index.js";
 import { app } from "./app.js";
-dotenv.config({path:'./env'})
+dotenv.config({ path: "./.env" });
 
-
-connectDB().then(()=>{
-app.listen(process.env.PORT || 8000,()=>{
-
-    console.log(`Sever is running on port ${process.env.PORT}`);
-})
-    
-}
-
-
-).catch((err)=>{
-
-console.log("MONGO DB connection error :", err);
-
-});
+connectDB()
+  .then(() => {
+    app.listen(process.env.PORT || 8000, () => {
+      console.log(`Sever is running on port ${process.env.PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.log("MONGO DB connection error :", err);
+  });
 
 //second approach
-
-
-
-
-
-
-
-
-
-
-
-
 
 /*   // this 1st aproach to make datbase connection and the listen on port 
 //this is polluting the main index file  
