@@ -53,15 +53,20 @@ const userSchema = new mongoose.Schema(
 //take time to process it so make it async
 //encrypting the password before pusing into the db
 
-userSchema.pre("save", async function () {
+userSchema.pre("save", async function (next) {
   /* Always keep that here in mind to check for the modified field 
         check for specific modified field here it is 
         checking password field.
     */
 
-  if (this.isModified("password")) return null;
+  if (!this.isModified("password"))
+    {
+      console.log("password not modified ");
+      return null;
+    }
 
   this.password = await bcrypt.hash(this.password, 10);
+
   next();
 });
 

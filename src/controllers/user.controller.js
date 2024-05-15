@@ -54,7 +54,7 @@ console.log("req-files=>",req.files);
   const user = await User.create({
     fullname,
     avatar: avatar.url,
-    coverImage: coverImage?.url || "", //since avatar is checked as it was
+    coverimage: coverImage?.url || "", //since avatar is checked as it was
     //required but cover Image is optional
     // check /*coverImage?.url || ""*/ is important
     email,
