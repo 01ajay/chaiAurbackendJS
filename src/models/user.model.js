@@ -61,8 +61,7 @@ userSchema.pre("save", async function (next) {
 
   if (!this.isModified("password"))
     {
-      console.log("password not modified ");
-      return null;
+      return next();
     }
 
   this.password = await bcrypt.hash(this.password, 10);
