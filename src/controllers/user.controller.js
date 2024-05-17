@@ -326,8 +326,6 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     );
 });
 
-
-
 const updateUserCoverImage = asyncHandler(async (req, res) => {
   const newLocalPath = req.file?.path;
 
@@ -356,8 +354,88 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(
-      new ApiResponse(200, { user: user }, "Cover image is updated successfully")
+      new ApiResponse(
+        200,
+        { user: user },
+        "Cover image is updated successfully"
+      )
     );
+});
+
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+  //assume here useranme getting in params
+
+  const { username } = req.params;
+
+  if (!username) {
+    throw new ApiError(400, "User Name is missing");
+  }
+
+  const chanel = await User.aggregate([
+    {
+      //stage 1 - find the user using user name
+      $match: {
+        username: username.toLowerCase(),
+      },
+    },
+
+  //stage 2 - subscriber 
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "channel",
+        as: "subscribers"
+      }
+
+    },
+    //stage 3, subscribed  to
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "subscribedTo"
+      }
+
+    },
+    {
+      $addFields:{
+      subscriberCount:{
+          $size:"$subscribers"
+      },
+      channelSubcribedToCount:{
+        $size:"$subscribedTo"
+      },
+      isSubscribed:{
+        $cond:{
+          if:{$in:[req.use._id,"$subscribers.subscriber"]},
+          then:true,
+          else:false
+        }
+      }
+    }},
+    {
+      $project:{
+        username:1,
+        fullname:1,
+        avatar:1,
+        coverimage:1,
+        subscriberCount:1,
+        channelSubcribedToCount:1,
+        isSubscribed:1,
+        email:1,
+      }
+    },
+  ]);
+
+
+if(!chanel?.length){
+  throw new ApiError(404,"Channel doesn't exists")
+} 
+  res.status(200).json(new ApiResponse(200, 
+    chanel[0]
+  , "Channel fetched sucessfully"));
 });
 
 export {
@@ -369,5 +447,6 @@ export {
   getCurrentUser,
   updateUserDetail,
   updateUserAvatar,
-  updateUserCoverImage
+  updateUserCoverImage,
+  getUserChannelProfile,
 };

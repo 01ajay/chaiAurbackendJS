@@ -9,6 +9,7 @@ import {
   updateUserDetail,
   updateUserAvatar,
   updateUserCoverImage,
+  getUserChannelProfile,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -37,5 +38,7 @@ router.route("/updateAvatar").post(upload.single("avatar"), updateUserAvatar);
 router
   .route("/updateCoverimage")
   .post(upload.single("coverimage"), updateUserCoverImage);
+
+router.route("/getChannel").post(getUserChannelProfile);
 
 export default router;
