@@ -5,6 +5,7 @@ import { uploadCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { json } from "express";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const generateAccessAndRefreshToken = async (userID) => {
   try {
@@ -379,15 +380,14 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
       },
     },
 
-  //stage 2 - subscriber 
+    //stage 2 - subscriber
     {
       $lookup: {
         from: "subscriptions",
         localField: "_id",
         foreignField: "channel",
-        as: "subscribers"
-      }
-
+        as: "subscribers",
+      },
     },
     //stage 3, subscribed  to
     {
@@ -395,53 +395,99 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         from: "subscriptions",
         localField: "_id",
         foreignField: "subscriber",
-        as: "subscribedTo"
-      }
-
+        as: "subscribedTo",
+      },
     },
     {
-      $addFields:{
-      subscriberCount:{
-          $size:"$subscribers"
+      $addFields: {
+        subscriberCount: {
+          $size: "$subscribers",
+        },
+        channelSubcribedToCount: {
+          $size: "$subscribedTo",
+        },
+        isSubscribed: {
+          $cond: {
+            if: { $in: [req.use._id, "$subscribers.subscriber"] },
+            then: true,
+            else: false,
+          },
+        },
       },
-      channelSubcribedToCount:{
-        $size:"$subscribedTo"
-      },
-      isSubscribed:{
-        $cond:{
-          if:{$in:[req.use._id,"$subscribers.subscriber"]},
-          then:true,
-          else:false
-        }
-      }
-    }},
+    },
     {
-      $project:{
-        username:1,
-        fullname:1,
-        avatar:1,
-        coverimage:1,
-        subscriberCount:1,
-        channelSubcribedToCount:1,
-        isSubscribed:1,
-        email:1,
-      }
+      $project: {
+        username: 1,
+        fullname: 1,
+        avatar: 1,
+        coverimage: 1,
+        subscriberCount: 1,
+        channelSubcribedToCount: 1,
+        isSubscribed: 1,
+        email: 1,
+      },
     },
   ]);
 
+  if (!chanel?.length) {
+    throw new ApiError(404, "Channel doesn't exists");
+  }
+  return res
+    .status(200)
+    .json(new ApiResponse(200, chanel[0], "Channel fetched sucessfully"));
+});
 
-if(!chanel?.length){
-  throw new ApiError(404,"Channel doesn't exists")
-} 
-  res.status(200).json(new ApiResponse(200, 
-    chanel[0]
-  , "Channel fetched sucessfully"));
+const getWatchHistory = asyncHandler(async (req, res) => {
+  const user = await User.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId.createFromBase64(req.user._id),
+      },
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "watchHistroy",
+        foreignField: "_id",
+        as: "watchHistory",
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                {
+                  $project: {
+                    username: 1,
+                    fullname: 1,
+
+                    avatar: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $addFields: {
+              $first: "$owner",
+            },
+          },
+        ],
+      },
+    },
+  ]);      
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user[0].watchHistory, "Watch fetched history successfully"));
 });
 
 export {
   registerUser,
   userLogin,
-  logoutUser,
+  logoutUser, 
   refreshAccessToken,
   changePassword,
   getCurrentUser,
@@ -449,4 +495,5 @@ export {
   updateUserAvatar,
   updateUserCoverImage,
   getUserChannelProfile,
+  getWatchHistory,
 };
