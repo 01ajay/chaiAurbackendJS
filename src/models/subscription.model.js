@@ -1,6 +1,6 @@
 
 
-import   { Schema,Model } from "mongoose";
+import   mongoose, { Schema,Model } from "mongoose";
 
 const subscription_schema = new Schema({
 
@@ -14,7 +14,7 @@ const subscription_schema = new Schema({
     },
 },{timestamps:true});
 
-const Subscription = Model("Subscription",subscription_schema);
+const Subscription = mongoose.model("Subscription",subscription_schema);
 
 
 export default Subscription;
